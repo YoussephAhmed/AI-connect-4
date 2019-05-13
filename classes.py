@@ -1,4 +1,11 @@
 import numpy as np
+import pygame
+import sys
+
+SQUARESIZE = 100
+COL_NO = 7
+ROW_NO = 6
+
 
 class Player:
     name = str
@@ -92,13 +99,11 @@ class GameBoard:
 
 
 
-
-
-
-
-
-
 class Game:
+    width = (int)
+    height = (int)
+    size = (int, int)
+    radius = int()
 
     # turn = 1
     # 1 for player 1
@@ -112,44 +117,116 @@ class Game:
     def __init__(self):
         self.turn = 1
         self.board = GameBoard()
-        player_1 = Player()
-        computer = Player()
+        self.player_1 = Player()
+        self.computer = Player()
+
+
+    def GUI_setup(self):
+        pygame.init()
+
+        self.width = COL_NO * SQUARESIZE
+        self.height = (ROW_NO + 1) * SQUARESIZE
+        self.size = (self.width,self.height)
+        self.radius = int(SQUARESIZE/2 - 10)
+        self.font = pygame.font.SysFont("monospace", 30)
+        self.screen = pygame.display.set_mode(self.size)
+
+
+    def draw_board(self):
+
+        for c in range(COL_NO):
+            for r in range(ROW_NO):
+                pygame.draw.rect(self.screen,(100,0,200) , (c*SQUARESIZE , r * SQUARESIZE + SQUARESIZE , SQUARESIZE, SQUARESIZE) )
+                if self.board.board[r][c] == 0:
+                    pygame.draw.circle(self.screen, (0, 0, 0),
+                                       (int(c * SQUARESIZE + SQUARESIZE / 2), int((r+1) * SQUARESIZE + SQUARESIZE / 2)),
+                                       self.radius)
+
+
+                elif self.board.board[r][c] == 1:  # Red
+                    pygame.draw.circle(self.screen, (255, 0, 0),
+                                       (int(c * SQUARESIZE + SQUARESIZE / 2) +1, int((r+1) * SQUARESIZE + SQUARESIZE / 2)+1),
+                                       self.radius)
+
+                elif self.board.board[r][c] == 2: # Yellow
+                    pygame.draw.circle(self.screen, (255, 255, 0),
+                                       (int(c * SQUARESIZE + SQUARESIZE / 2) +1, int((r+1) * SQUARESIZE + SQUARESIZE / 2)+1),
+                                       self.radius)
+
+
+                pygame.display.update()
+
 
 
     def simulate_game(self): # the loop of playing
 
+        self.GUI_setup()
+        self.draw_board()
         game_end = False
+
+        label = self.font.render('player 1 turn', 1, (255, 0, 0))
+        self.screen.blit(label, (40, 50))
+        pygame.display.update()
 
         while (not game_end):
 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
 
 
-            temp = input("player " + str(self.turn) + " choose a colomn: ")
-            
-            place = int(temp) - 1
-            if place > 6 or place < 0:
-                print('invalid move, try a number between 1 and 7')
-                continue
+                if event.type == pygame.MOUSEBUTTONDOWN:
+
+                    x = event.pos[0]
+                    place = int(x/SQUARESIZE)
 
 
-            if self.board.possible(place):
-                self.board.play(self.turn, place)
+                    if self.board.possible(place):
+                        self.board.play(self.turn, place)
+                        self.draw_board()
 
 
-            print(self.board.board)
+                        # flip the turns here
+                        if self.turn == 1:
+                            self.turn = 2
+                            label = self.font.render('player ' + str(self.turn) + ' turn', 1, (255, 255, 0))
 
-            if( self.board.full() or self.board.win()):
-                game_end = True
-                if (self.board.win()):
-                    print('*****player '+str(self.turn)+' wins *****')
-
-            if self.turn == 1:
-                self.turn = 2
-            else:
-                self.turn = 1
+                        else:
+                            self.turn = 1
+                            label = self.font.render('player ' + str(self.turn) + ' turn', 1, (255, 0, 0))
 
 
+                        self.screen.blit(label, (40, 50))
+                        pygame.display.update()
 
+                    #print(self.board.board)
+
+                    if (self.board.full() or self.board.win()):
+                        game_end = True
+                        if (self.board.win()):
+
+                            if(self.turn == 2): # Player 1 Wins
+
+                                label = self.font.render('***** player 1 wins *****', 1,
+                                                         (255, 0, 0))
+                                self.screen.blit(label, (40, 10))
+
+                            elif(self.turn == 1): # Player 2 Wins
+
+                                label = self.font.render('***** player 2 wins *****', 1,
+                                                         (255,255, 0))
+                                self.screen.blit(label, (40, 10))
+
+                            #print('*****player ' + str(self.turn) + ' wins *****')
+
+                        else:
+                            label = self.font.render('***** TIE ! *****' , 1, (255,255,255))
+                            self.screen.blit(label,(40,10))
+
+                            #print('***** TIE !i *****')
+
+                        pygame.display.update()
+                        pygame.time.wait(7000)
 
 hi = Game()
 hi.simulate_game()
