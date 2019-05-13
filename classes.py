@@ -185,6 +185,13 @@ class Game:
                         self.board.play(self.turn, place)
                         self.draw_board()
 
+                        #label = self.font.render('player ' + str(self.turn) + ' turn', 1, (0, 0, 0))
+                        #self.screen.blit(label, (40, 50)) # clear the output screen
+
+                        #Clear the output after every move
+                        self.screen.fill(pygame.Color("black"), (40,50,300,50))
+
+
 
                         # flip the turns here
                         if self.turn == 1:
