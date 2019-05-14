@@ -122,6 +122,41 @@ class Game:
 
         while (not game_end):
 
+<<<<<<< HEAD
+=======
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+
+                    x = event.pos[0]
+                    place = int(x/SQUARESIZE)
+
+
+                    if self.board.possible(place):
+                        self.board.play(self.turn, place)
+                        self.draw_board()
+
+                        #label = self.font.render('player ' + str(self.turn) + ' turn', 1, (0, 0, 0))
+                        #self.screen.blit(label, (40, 50)) # clear the output screen
+
+                        #Clear the output after every move
+                        self.screen.fill(pygame.Color("black"), (40,50,300,50))
+
+
+
+                        # flip the turns here
+                        if self.turn == 1:
+                            self.turn = 2
+                            label = self.font.render('player ' + str(self.turn) + ' turn', 1, (255, 255, 0))
+
+                        else:
+                            self.turn = 1
+                            label = self.font.render('player ' + str(self.turn) + ' turn', 1, (255, 0, 0))
+
+>>>>>>> 26f3ce8fde4580bfef06e3a73c1349895d9adb70
 
 
             temp = input("player " + str(self.turn) + " choose a colomn: ")
