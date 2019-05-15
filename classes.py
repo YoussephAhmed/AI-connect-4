@@ -23,7 +23,80 @@ class Player:
             if board[5-i, j] == 0:
                 board[5-i, j] = self.player_id
                 return
+######################__________board_evaluation_function_with_some_helping_functions__________###########################################
+  #helping functions
+    def there_is_three_in_a_row(self,board):
+        row_1 = np.array([self.player_id, self.player_id, self.player_id])
+        for i in range(6):
+            for j in range(3):
+                if (np.array_equal(board[i, j : j+3], row_1)):
+                    return 1
+        
+        return 0
 
+    def there_is_two_in_a_row(self,board,opponent):
+        if opponent:
+            if self.player_id==1:
+                row_1=np.array([2,2])
+            else:
+                row_1=np.array([1,1])
+        else:
+            row_1=np.array([self.player_id,self.player_id,])
+    
+        for i in range (6):
+            for j in range (4):
+                if (np.array_equal(board[i, j : j+2], row_1)):
+                    return 1
+        
+        return 0
+    def there_is_opponent_win_chance(self,board):
+        
+        if self.player_id==1:
+            row_1=np.array([2,2])
+        else:
+            row_1=np.array([1,1])
+    
+        for i in range (6):
+            for j in range (3):
+                if (np.array_equal(board[i, j : j+3], row_1)):
+                    return 1
+        return 0
+
+    def evaluate_state(self,board,next_move):
+        # maximum value = 100 -> absolute win with this next move
+        # minimum value = -100 -> absolute lose with this next move
+                                                                                                
+        win_score=100
+        lose_score=100
+        score=0
+        new_board=GameBoard()
+        new_board.board=np.copy(board)
+        
+        if(new_board.possible(next_move)):
+            self.play_move(new_board.board,next_move)
+           
+        if(new_board.win()):
+            return win_score
+
+        if next_move==3:# board center
+            score+=4
+        
+        if self.there_is_two_in_a_row(new_board.board,opponent=0):
+            score+=3
+
+        if self.there_is_three_in_a_row(new_board.board):
+            score+=5
+        
+        if self.there_is_two_in_a_row(new_board.board,opponent=1):
+            score-=5
+        
+        if self.there_is_opponent_win_chance(new_board.board):
+            return lose_score
+
+        return score
+
+
+############################################################################################################################
     def smart_move(self,board):
         #compute the best position
         #call play_move with this move
