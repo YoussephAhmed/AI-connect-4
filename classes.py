@@ -162,6 +162,8 @@ class Game:
 
         gameLevel = 0
         flagLevel = 0
+        modeSelected = 0
+        flagMode = 0
         pygame.display.update()
 
         while (not game_end):
@@ -178,11 +180,16 @@ class Game:
             textsurface3, textrect3 = text_objects("Easy", text)
             textsurface4, textrect4 = text_objects("Medium", text)
             textsurface5, textrect5 = text_objects("Hard", text)
+
+            textsurface6, textrect6 = text_objects("Regular Mode", text)
+            textsurface7, textrect7 = text_objects("Verbose Mode", text)
             # check to see if the mouse is in the button coordinates
 
             mouse = pygame.mouse.get_pos()
             click = pygame.mouse.get_pressed()
             pygame.display.update()
+
+
             if gameLevel == 1 :
                 gameLevel =1
                 flagLevel = 1
@@ -192,23 +199,60 @@ class Game:
             elif gameLevel ==3:
                 gameLevel = 3
                 flagLevel =1
+
+            if modeSelected ==1:
+                modeSelected =1
+            elif modeSelected ==2:
+                modeSelected =2
+
+
             flagLevel = 0
+            flagMode = 0
             # Hasb el chosen Level hnnady el minimax function b depth mo3yn kol m el depth yzed kol m yb2a as3ab
-            if gameLevel == 0 :
-                if 20 + 80 > mouse[0] > 20 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
-                    pygame.draw.rect(self.screen, (200, 200, 200), (20, 40, 80, 50))
+            if modeSelected == 0 :
+                if 150 + 150 > mouse[0] > 150 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
+                    pygame.draw.rect(self.screen, (200, 200, 200), (150, 40, 150, 50))
+                    modeSelected = 1
+                    flagMode = 1
+                    print("regular mode selected")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (150, 40, 150, 50))
+
+                if 450 + 150 > mouse[0] > 450 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
+                    pygame.draw.rect(self.screen, (200, 200, 200), (450, 40, 150, 50))
+                    modeSelected = 2
+                    flagMode = 1
+                    #hena b2a hntala3 el info el 2al 3aleha
+                    print("verbose mode selected")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (450, 40, 150, 50))
+
+                textrect6.center = ((150 + (150 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface6, textrect6)
+                textrect7.center = ((450 + (150 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface7, textrect7)
+
+                label = self.font.render('Pick the mode of the game', 1, (255, 255, 255))
+                self.screen.blit(label, (10, 5))
+            if flagMode == 1:
+                pygame.draw.rect(self.screen, black, (450, 40, 150, 50))
+                pygame.draw.rect(self.screen, black, (150, 40, 150, 50))
+                pygame.draw.rect(self.screen, black, (10, 5, 300, 50))
+            if gameLevel == 0 and modeSelected != 0:
+                if 100 + 80 > mouse[0] > 100 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
+                    pygame.draw.rect(self.screen, (200, 200, 200), (100, 40, 80, 50))
                     gameLevel = 1
                     flagLevel =1
                     print("chosen level: Easy" )
                 else:
-                    pygame.draw.rect(self.screen, (255, 255, 255), (20, 40, 80, 50))
-                if 300 + 80 > mouse[0] > 300 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
-                    pygame.draw.rect(self.screen, (200, 200, 200), (300, 40, 80, 50))
+                    pygame.draw.rect(self.screen, (255, 255, 255), (100, 40, 80, 50))
+                if 350 + 80 > mouse[0] > 350 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
+                    pygame.draw.rect(self.screen, (200, 200, 200), (350, 40, 80, 50))
                     gameLevel = 2
                     flagLevel = 1
                     print("chosen level: Medium")
                 else:
-                    pygame.draw.rect(self.screen, (255, 255, 255), (300, 40, 80, 50))
+                    pygame.draw.rect(self.screen, (255, 255, 255), (350, 40, 80, 50))
 
                 if 600 + 80 > mouse[0] > 600 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
                     pygame.draw.rect(self.screen, (200, 200, 200), (600, 40, 80, 50))
@@ -218,31 +262,27 @@ class Game:
                 else:
                     pygame.draw.rect(self.screen, (255, 255, 255), (600, 40, 80, 50))
 
-                textrect3.center = ((20 + (80 / 2)), (40 + (50 / 2)))
+                textrect3.center = ((100 + (80 / 2)), (40 + (50 / 2)))
                 self.screen.blit(textsurface3, textrect3)
-                textrect4.center = ((300 + (80 / 2)), (40 + (50 / 2)))
+                textrect4.center = ((350 + (80 / 2)), (40 + (50 / 2)))
                 self.screen.blit(textsurface4, textrect4)
                 textrect5.center = ((600 + (80 / 2)), (40 + (50 / 2)))
                 self.screen.blit(textsurface5, textrect5)
 
                 label = self.font.render('Pick the level of the game', 1, (255, 255, 255))
                 self.screen.blit(label, (10, 5))
-            if flagLevel == 1:
-                pygame.draw.rect(self.screen, black, (20, 40, 80, 50))
-                pygame.draw.rect(self.screen, black, (300, 40, 80, 50))
+            if flagLevel == 1 and modeSelected != 0:
+                pygame.draw.rect(self.screen, black, (100, 40, 80, 50))
+                pygame.draw.rect(self.screen, black, (350, 40, 80, 50))
                 pygame.draw.rect(self.screen, black, (600, 40, 80, 50))
                 pygame.draw.rect(self.screen, black, (10, 5, 300, 50))
-
-            if picked == 1 and gameLevel != 0:
+            if picked == 1 and gameLevel != 0 and modeSelected != 0:
                 picked =1
 
                 pygame.draw.rect(self.screen, (0,0,0), (200, 40, 150, 50))
                 pygame.draw.rect(self.screen, (0,0,0), (400, 40, 150, 50))
                 pygame.draw.rect(self.screen, (0,0,0), (10, 5, 900, 50))
-            # if the x value of the mouse is greater than the x coordinate + the width of the button
-            # same for the y coordinate
-            # then we are in the boundaries of our red button
-            elif picked == 0 and gameLevel != 0:
+            elif picked == 0 and gameLevel != 0 and modeSelected != 0:
                 label = self.font.render('Pick which player will start the game', 1, (255, 255, 255))
                 self.screen.blit(label, (10, 5))
                 if 250 + 100 > mouse[0] > 250 and 40 + 50 > mouse[1] > 40 and click[0] ==1:
