@@ -488,7 +488,7 @@ class GameBoard:
         vertical_chances_for_the_enemy=self.column_chances(opponent=1)
 
         
-        if(new_board.win()):
+        if(self.win()):
             if self.turn==2:#AI won
                 return win_score
             else:
