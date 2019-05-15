@@ -159,7 +159,9 @@ class Game:
 
 
         picked = 0
-        playerChosen = 0
+
+        gameLevel = 0
+        flagLevel = 0
         pygame.display.update()
 
         while (not game_end):
@@ -168,16 +170,70 @@ class Game:
             yellow = (200, 200, 0)
             bright_red = (255, 0, 0)
             bright_yellow = (255, 255, 0)
+            black =(0,0,0)
             text = pygame.font.Font("freesansbold.ttf", 20)
             textsurface1, textrect1 = text_objects("Player 1", text)
             textsurface2, textrect2 = text_objects("Player 2", text)
 
+            textsurface3, textrect3 = text_objects("Easy", text)
+            textsurface4, textrect4 = text_objects("Medium", text)
+            textsurface5, textrect5 = text_objects("Hard", text)
             # check to see if the mouse is in the button coordinates
+
             mouse = pygame.mouse.get_pos()
             click = pygame.mouse.get_pressed()
             pygame.display.update()
-            #print("mouse at: ", mouse)
-            if picked == 1:
+            if gameLevel == 1 :
+                gameLevel =1
+                flagLevel = 1
+            elif gameLevel ==2:
+                gameLevel =2
+                flagLevel =1
+            elif gameLevel ==3:
+                gameLevel = 3
+                flagLevel =1
+            flagLevel = 0
+            # Hasb el chosen Level hnnady el minimax function b depth mo3yn kol m el depth yzed kol m yb2a as3ab
+            if gameLevel == 0 :
+                if 20 + 80 > mouse[0] > 20 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
+                    pygame.draw.rect(self.screen, (200, 200, 200), (20, 40, 80, 50))
+                    gameLevel = 1
+                    flagLevel =1
+                    print("chosen level: Easy" )
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (20, 40, 80, 50))
+                if 300 + 80 > mouse[0] > 300 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
+                    pygame.draw.rect(self.screen, (200, 200, 200), (300, 40, 80, 50))
+                    gameLevel = 2
+                    flagLevel = 1
+                    print("chosen level: Medium")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (300, 40, 80, 50))
+
+                if 600 + 80 > mouse[0] > 600 and 40 + 50 > mouse[1] > 40 and click[0] == 1:
+                    pygame.draw.rect(self.screen, (200, 200, 200), (600, 40, 80, 50))
+                    gameLevel = 3
+                    flagLevel = 1
+                    print("chosen level: Hard")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (600, 40, 80, 50))
+
+                textrect3.center = ((20 + (80 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface3, textrect3)
+                textrect4.center = ((300 + (80 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface4, textrect4)
+                textrect5.center = ((600 + (80 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface5, textrect5)
+
+                label = self.font.render('Pick the level of the game', 1, (255, 255, 255))
+                self.screen.blit(label, (10, 5))
+            if flagLevel == 1:
+                pygame.draw.rect(self.screen, black, (20, 40, 80, 50))
+                pygame.draw.rect(self.screen, black, (300, 40, 80, 50))
+                pygame.draw.rect(self.screen, black, (600, 40, 80, 50))
+                pygame.draw.rect(self.screen, black, (10, 5, 300, 50))
+
+            if picked == 1 and gameLevel != 0:
                 picked =1
 
                 pygame.draw.rect(self.screen, (0,0,0), (200, 40, 150, 50))
@@ -186,7 +242,7 @@ class Game:
             # if the x value of the mouse is greater than the x coordinate + the width of the button
             # same for the y coordinate
             # then we are in the boundaries of our red button
-            elif picked == 0:
+            elif picked == 0 and gameLevel != 0:
                 label = self.font.render('Pick which player will start the game', 1, (255, 255, 255))
                 self.screen.blit(label, (10, 5))
                 if 250 + 100 > mouse[0] > 250 and 40 + 50 > mouse[1] > 40 and click[0] ==1:
