@@ -48,12 +48,12 @@ class Player:
 
         if (board_copy.full() and  board_copy.win()):  # one player is win
             #score = tempEval()
-            score = board_copy.evaluate_state(board_copy, current_position)
+            score = board_copy.evaluate_state(current_position)
             return score, None
 
         if (depth == 0):
             #score = tempEval()
-            score = board_copy.evaluate_state( board_copy, current_position)
+            score = board_copy.evaluate_state( current_position)
             return score, None
 
         # now the algorithm part
@@ -201,83 +201,357 @@ class GameBoard:
                 ######################__________board_evaluation_function_with_some_helping_functions__________###########################################
                 # helping functions
 
-    def there_is_three_in_a_row(self, board):
-        row_1 = np.array([self.turn, self.turn, self.turn])
-        for i in range(6):
-            for j in range(3):
-                if (np.array_equal(board[i, j: j + 3], row_1)):
-                    return 1
-
-        return 0
-
-    def there_is_two_in_a_row(self, board, opponent):
+    def possible_win_chances_in_rows(self,opponent):
         if opponent:
-            if self.turn == 1:
-                row_1 = np.array([2, 2])
-            else:
-                row_1 = np.array([1, 1])
-        else:
-            row_1 = np.array([self.turn, self.turn, ])
+            if self.turn==1:
+                three_in_a_row_right_win = np.array([2, 2, 2,0])
+                three_in_a_row_left_win = np.array([0,2, 2, 2])
 
+                three_in_a_row_middle_win1 = np.array([2, 0,2, 2])
+                three_in_a_row_middle_win2 = np.array([2, 2, 0 , 2])
+            else:
+                three_in_a_row_right_win = np.array([1, 1, 1,0])
+                three_in_a_row_left_win = np.array([0,1, 1, 1])
+
+                three_in_a_row_middle_win1 = np.array([1, 0,1, 1])
+                three_in_a_row_middle_win2 = np.array([1, 1, 0 , 1])
+        else:
+            three_in_a_row_right_win = np.array([self.turn, self.turn, self.turn,0])
+            three_in_a_row_left_win = np.array([0,self.turn, self.turn, self.turn])
+
+            three_in_a_row_middle_win1 = np.array([self.turn, 0,self.turn, self.turn])
+            three_in_a_row_middle_win2 = np.array([self.turn, self.turn, 0 , self.turn])
+            
+        row_win_chances=[]
         for i in range(6):
             for j in range(4):
-                if (np.array_equal(board[i, j: j + 2], row_1)):
-                    return 1
+                if ((np.array_equal(self.board[i, j : j+4], three_in_a_row_right_win))
+                    or (np.array_equal(self.board[i, j : j+4], three_in_a_row_left_win))
+                    or (np.array_equal(self.board[i, j : j+4], three_in_a_row_middle_win1))
+                    or (np.array_equal(self.board[i, j : j+4], three_in_a_row_middle_win2))):
+                    row_win_chances.append(6-i)
+        return row_win_chances
 
-        return 0
-
-    def there_is_opponent_win_chance(self, board):
-
-
-        #if self.player_id == 1:
-        if self.turn == 1:
-            row_1 = np.array([2, 2])
+    def two_in_a_row(self,opponent):
+        weak_chance=[]
+        if opponent:
+            if self.turn==1:
+                two_in_a_row1=np.array([0,0,2,2])
+                two_in_a_row2=np.array([2,2,0,0])
+                two_in_a_row3=np.array([0,2,0,2])
+                two_in_a_row4=np.array([2,0,2,0])
+                two_in_a_row5=np.array([0,2,2,0])
+            else:
+                two_in_a_row1=np.array([0,0,1,1])
+                two_in_a_row2=np.array([1,1,0,0])
+                two_in_a_row3=np.array([0,1,0,1])
+                two_in_a_row4=np.array([1,0,1,0])
+                two_in_a_row5=np.array([0,1,1,0])
         else:
-            row_1 = np.array([1, 1])
+            two_in_a_row1=np.array([0,0,self.turn,self.turn])
+            two_in_a_row2=np.array([self.turn,self.turn,0,0])
+            two_in_a_row3=np.array([0,self.turn,0,self.turn])
+            two_in_a_row4=np.array([self.turn,0,self.turn,0])
+            two_in_a_row5=np.array([0,self.turn,self.turn,0])
+    
+        for i in range (6):
+            for j in range (4):
+                if ((np.array_equal(self.board[i, j : j+4], two_in_a_row1))
+                    or (np.array_equal(self.board[i, j : j+4], two_in_a_row2))
+                    or (np.array_equal(self.board[i, j : j+4], two_in_a_row3))
+                    or (np.array_equal(self.board[i, j : j+4], two_in_a_row4))
+                    or (np.array_equal(self.board[i, j : j+4], two_in_a_row5))):
+                    weak_chance.append(6-i)   
+        return weak_chance
 
-        for i in range(6):
-            for j in range(3):
-                if (np.array_equal(board[i, j: j + 3], row_1)):
-                    return 1
-        return 0
+    def diagonal_strong_chance(self,opponent):#three on a diagonal line
+        if opponent:
+            if self.turn==1:
+                downward_diagonal_1 = np.array([[2, 0, 0, 0],
+                                                [0, 2, 0, 0],
+                                                [0, 0, 2, 0],
+                                                [0, 0, 0, 0]])
 
-    def evaluate_state(self, board, next_move):
+                downward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                                [0, 2, 0, 0],
+                                                [0, 0, 2, 0],
+                                                [0, 0, 0, 2]])
+
+                downward_diagonal_3 = np.array([[2, 0, 0, 0],
+                                                [0, 0, 0, 0],
+                                                [0, 0, 2, 0],
+                                                [0, 0, 0, 2]])
+                                                
+                downward_diagonal_4 = np.array([[2, 0, 0, 0],
+                                                [0, 2, 0, 0],
+                                                [0, 0, 0, 0],
+                                                [0, 0, 0, 2]])
+                
+
+
+                upward_diagonal_1 = np.array([[0, 0, 0, 2],
+                                              [0, 0, 2, 0],
+                                              [0, 2, 0, 0],
+                                              [0, 0, 0, 0]])
+
+                upward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                              [0, 0, 2, 0],
+                                              [0, 2, 0, 0],
+                                              [2, 0, 0, 0]])
+
+                upward_diagonal_3 = np.array([[0, 0, 0, 2],
+                                              [0, 0, 0, 0],
+                                              [0, 2, 0, 0],
+                                              [2, 0, 0, 0]])
+                                                
+                upward_diagonal_4 = np.array([[0, 0, 0, 2],
+                                              [0, 0, 2, 0],
+                                              [0, 0, 0, 0],
+                                              [2, 0, 0, 0]])
+
+            else:
+                downward_diagonal_1 = np.array([[1, 0, 0, 0],
+                                                [0, 1, 0, 0],
+                                                [0, 0, 1, 0],
+                                                [0, 0, 0, 0]])
+
+                downward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                                [0, 1, 0, 0],
+                                                [0, 0, 1, 0],
+                                                [0, 0, 0, 1]])
+
+                downward_diagonal_3 = np.array([[1, 0, 0, 0],
+                                                [0, 0, 0, 0],
+                                                [0, 0, 1, 0],
+                                                [0, 0, 0, 1]])
+                                                
+                downward_diagonal_4 = np.array([[1, 0, 0, 0],
+                                                [0, 1, 0, 0],
+                                                [0, 0, 0, 0],
+                                                [0, 0, 0, 1]])
+                
+
+
+                upward_diagonal_1 = np.array([[0, 0, 0, 1],
+                                              [0, 0, 1, 0],
+                                              [0, 1, 0, 0],
+                                              [0, 0, 0, 0]])
+
+                upward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                              [0, 0, 1, 0],
+                                              [0, 1, 0, 0],
+                                              [1, 0, 0, 0]])
+
+                upward_diagonal_3 = np.array([[0, 0, 0, 1],
+                                              [0, 0, 0, 0],
+                                              [0, 1, 0, 0],
+                                              [1, 0, 0, 0]])
+                                                
+                upward_diagonal_4 = np.array([[0, 0, 0, 1],
+                                              [0, 0, 1, 0],
+                                              [0, 0, 0, 0],
+                                              [1, 0, 0, 0]])
+
+        else:
+            downward_diagonal_1 = np.array([[self.turn, 0, 0, 0],
+                                                [0, self.turn, 0, 0],
+                                                [0, 0, self.turn, 0],
+                                                [0, 0, 0, 0]])
+
+            downward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                            [0, self.turn, 0, 0],
+                                            [0, 0, self.turn, 0],
+                                            [0, 0, 0, self.turn]])
+
+            downward_diagonal_3 = np.array([[self.turn, 0, 0, 0],
+                                            [0, 0, 0, 0],
+                                            [0, 0, self.turn, 0],
+                                            [0, 0, 0, self.turn]])
+                                                
+            downward_diagonal_4 = np.array([[self.turn, 0, 0, 0],
+                                            [0, self.turn, 0, 0],
+                                            [0, 0, 0, 0],
+                                            [0, 0, 0, self.turn]])
+            
+
+
+            upward_diagonal_1 = np.array([[0, 0, 0, self.turn],
+                                            [0, 0, self.turn, 0],
+                                            [0, self.turn, 0, 0],
+                                            [0, 0, 0, 0]])
+
+            upward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                            [0, 0, self.turn, 0],
+                                            [0, self.turn, 0, 0],
+                                            [self.turn, 0, 0, 0]])
+
+            upward_diagonal_3 = np.array([[0, 0, 0, self.turn],
+                                            [0, 0, 0, 0],
+                                            [0, self.turn, 0, 0],
+                                            [self.turn, 0, 0, 0]])
+                                            
+            upward_diagonal_4 = np.array([[0, 0, 0, self.turn],
+                                            [0, 0, self.turn, 0],
+                                            [0, 0, 0, 0],
+                                            [self.turn, 0, 0, 0]])
+       
+        template_downward_diagonal_1 = np.array([[1, 0, 0, 0],
+                                                 [0, 1, 0, 0],
+                                                 [0, 0, 1, 0],
+                                                 [0, 0, 0, 0]])
+
+        template_downward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                                 [0, 1, 0, 0],
+                                                 [0, 0, 1, 0],
+                                                 [0, 0, 0, 1]])
+
+        template_downward_diagonal_3 = np.array([[1, 0, 0, 0],
+                                                 [0, 0, 0, 0],
+                                                 [0, 0, 1, 0],
+                                                 [0, 0, 0, 1]])
+                                        
+        template_downward_diagonal_4 = np.array([[1, 0, 0, 0],
+                                                 [0, 1, 0, 0],
+                                                 [0, 0, 0, 0],
+                                                 [0, 0, 0, 1]])
+        
+
+
+        template_upward_diagonal_1 = np.array([[0, 0, 0, 1],
+                                               [0, 0, 1, 0],
+                                               [0, 1, 0, 0],
+                                               [0, 0, 0, 0]])
+
+        template_upward_diagonal_2 = np.array([[0, 0, 0, 0],
+                                               [0, 0, 1, 0],
+                                               [0, 1, 0, 0],
+                                               [1, 0, 0, 0]])
+
+        template_upward_diagonal_3 = np.array([[0, 0, 0, 1],
+                                               [0, 0, 0, 0],
+                                               [0, 1, 0, 0],
+                                               [1, 0, 0, 0]])
+                                            
+        template_upward_diagonal_4 = np.array([[0, 0, 0, 1],
+                                               [0, 0, 1, 0],
+                                               [0, 0, 0, 0],
+                                               [1, 0, 0, 0]])
+        diagonal_strong_chances=[]
+        for i in range(3):
+            for j in range(4):
+                kernal_downward_diagonal_1= np.multiply(self.board[i : i + 4, j : j+4],template_downward_diagonal_1)
+                kernal_downward_diagonal_2= np.multiply(self.board[i : i + 4, j : j+4],template_downward_diagonal_2)
+                kernal_downward_diagonal_3= np.multiply(self.board[i : i + 4, j : j+4],template_downward_diagonal_3)
+                kernal_downward_diagonal_4= np.multiply(self.board[i : i + 4, j : j+4],template_downward_diagonal_4)
+
+                kernal_upward_diagonal_1= np.multiply(self.board[i : i + 4, j : j+4],template_upward_diagonal_1)
+                kernal_upward_diagonal_2= np.multiply(self.board[i : i + 4, j : j+4],template_upward_diagonal_2)
+                kernal_upward_diagonal_3= np.multiply(self.board[i : i + 4, j : j+4],template_upward_diagonal_3)
+                kernal_upward_diagonal_4= np.multiply(self.board[i : i + 4, j : j+4],template_upward_diagonal_4)
+
+                
+                if (np.array_equal(kernal_downward_diagonal_1, downward_diagonal_1)) or (np.array_equal(kernal_upward_diagonal_1, upward_diagonal_1)):
+                    diagonal_strong_chances.append(6-(i+3))
+
+                if (np.array_equal(kernal_downward_diagonal_2, downward_diagonal_2)) or (np.array_equal(kernal_upward_diagonal_2, upward_diagonal_2)):
+                    diagonal_strong_chances.append(6-i)
+                
+                if (np.array_equal(kernal_downward_diagonal_3, downward_diagonal_3)) or (np.array_equal(kernal_upward_diagonal_3, upward_diagonal_3)):
+                    diagonal_strong_chances.append(6-(i+1))
+
+                if (np.array_equal(kernal_downward_diagonal_4, downward_diagonal_4)) or (np.array_equal(kernal_upward_diagonal_4, upward_diagonal_4)):
+                    diagonal_strong_chances.append(6-(i+2))
+        return diagonal_strong_chances
+            
+
+
+    def column_chances(self,opponent):
+        if opponent:
+            if self.turn==1:
+                column_chance=np.array([0,2,2,2])
+            else:
+                column_chance=np.array([0,1,1,1])
+        else:
+            column_chance=np.array([0,self.turn,self.turn,self.turn])
+
+        column_win_chances=[]
+        for i in range(3):
+            for j in range(7):
+                if (np.array_equal(self.board[i : i + 4, j], column_chance)):
+                    column_win_chances.append(6-i)
+
+        return column_win_chances
+        
+
+
+    def evaluate_state(self,played_move):
         # maximum value = 100 -> absolute win with this next move
         # minimum value = -100 -> absolute lose with this next move
+                                                                                                
+        win_score=math.inf
+        lose_score=-math.inf
+        score=0
+     
+        three_in_a_row_for_me=self.possible_win_chances_in_rows(opponent=0)
+        three_in_a_row_for_the_enemy=self.possible_win_chances_in_rows(opponent=1)
 
-        win_score = 100
-        lose_score = 100
-        score = 0
-        # new_board = GameBoard()
-        # new_board.board = np.copy(board)
-        new_board = copy.deepcopy(board)
+        two_in_a_row_for_me=self.two_in_a_row(opponent=0)
+        two_in_a_row_for_the_enemy=self.two_in_a_row(opponent=1)
 
-        if (new_board.possible(next_move)):
-            new_board.play(next_move, next_move)
+        diagonal_chances_for_me=self.diagonal_strong_chance(opponent=0)
+        diagonal_chances_for_the_enemy=self.diagonal_strong_chance(opponent=1)
 
-        if (new_board.win()):
-            return win_score
+        vertical_chances_for_me=self.column_chances(opponent=0)
+        vertical_chances_for_the_enemy=self.column_chances(opponent=1)
 
-        if next_move == 3:  # board center
-            score += 4
+        
+        if(self.win()):
+            if self.turn==2:#AI won
+                return win_score
+            else:
+                return lose_score
 
-        if self.there_is_two_in_a_row(new_board.board, opponent=0):
-            score += 3
+        if played_move==3:# board center
+            score+=5
+        
+        if len(three_in_a_row_for_me)!=0:
+            for i in three_in_a_row_for_me:
+                score+=4
 
-        if self.there_is_three_in_a_row(new_board.board):
-            score += 5
+        if len(three_in_a_row_for_the_enemy)!=0:
+            for i in three_in_a_row_for_the_enemy:
+                score-=4
 
-        if self.there_is_two_in_a_row(new_board.board, opponent=1):
-            score -= 5
+        
+        if len(two_in_a_row_for_me)!=0:
+            for i in two_in_a_row_for_me:
+                score+=2
+        
+        if len(two_in_a_row_for_the_enemy)!=0:
+            for i in two_in_a_row_for_the_enemy:
+                score-=2
 
-        if self.there_is_opponent_win_chance(new_board.board):
-            return lose_score
+        if len(diagonal_chances_for_me)!=0:
+            for i in diagonal_chances_for_me:
+                score+=4
+
+        if len(diagonal_chances_for_the_enemy)!=0:
+            for i in diagonal_chances_for_the_enemy:
+                score-=4
+        
+        if len(vertical_chances_for_me)!=0:
+            for i in vertical_chances_for_me:
+                score+=4
+
+        if len(vertical_chances_for_the_enemy)!=0:
+            for i in vertical_chances_for_the_enemy:
+                score-=4
+        
 
         return score
 
 
 ############################################################################################################################
-
 
 
 
@@ -289,7 +563,7 @@ class Game:
 
     def __init__(self):
         self.turn = 1
-        self.board = GameBoard()
+        self.board = GameBoard(1)
         self.player_1 = Player(player_id=1)
         self.player_2 = Player(player_id=2)
 
