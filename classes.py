@@ -103,7 +103,7 @@ class Game:
     radius = int()
 
     def __init__(self):
-        self.turn = 1
+        self.turn = 0
         self.board = GameBoard()
         self.player_1 = Player(player_id=1)
         self.player_2 = Player(player_id=2)
@@ -116,7 +116,7 @@ class Game:
         self.height = (ROW_NO + 1) * SQUARESIZE
         self.size = (self.width,self.height)
         self.radius = int(SQUARESIZE/2 - 10)
-        self.font = pygame.font.SysFont("monospace", 30)
+        self.font = pygame.font.SysFont("monospace", 20)
         self.screen = pygame.display.set_mode(self.size)
 
 
@@ -145,28 +145,87 @@ class Game:
                 pygame.display.update()
 
 
-
     def simulate_game(self): # the loop of playing
+        def text_objects( text, font):
+            textsurface = font.render(text, True, (0, 0, 0))
+            return textsurface, textsurface.get_rect()
+
 
         self.GUI_setup()
         self.draw_board()
 
         game_end = False
 
-        label = self.font.render('player 1 turn', 1, (255, 0, 0))
-        self.screen.blit(label, (40, 50))
+
+
+        picked = 0
+        playerChosen = 0
         pygame.display.update()
 
         while (not game_end):
+            # salma
+            red = (200, 0, 0)
+            yellow = (200, 200, 0)
+            bright_red = (255, 0, 0)
+            bright_yellow = (255, 255, 0)
+            text = pygame.font.Font("freesansbold.ttf", 20)
+            textsurface1, textrect1 = text_objects("Player 1", text)
+            textsurface2, textrect2 = text_objects("Player 2", text)
 
+            # check to see if the mouse is in the button coordinates
+            mouse = pygame.mouse.get_pos()
+            click = pygame.mouse.get_pressed()
+            pygame.display.update()
+            #print("mouse at: ", mouse)
+            if picked == 1:
+                picked =1
+
+                pygame.draw.rect(self.screen, (0,0,0), (200, 40, 150, 50))
+                pygame.draw.rect(self.screen, (0,0,0), (400, 40, 150, 50))
+                pygame.draw.rect(self.screen, (0,0,0), (10, 5, 900, 50))
+            # if the x value of the mouse is greater than the x coordinate + the width of the button
+            # same for the y coordinate
+            # then we are in the boundaries of our red button
+            elif picked == 0:
+                label = self.font.render('Pick which player will start the game', 1, (255, 255, 255))
+                self.screen.blit(label, (10, 5))
+                if 250 + 100 > mouse[0] > 250 and 40 + 50 > mouse[1] > 40 and click[0] ==1:
+                    pygame.draw.rect(self.screen, bright_red, (250, 40, 100, 50))
+                    picked =1
+                    self.turn = 1
+                    #print("Clicked Red!")
+                    #print("player chosen : ",playerChosen)
+
+                else:
+                    pygame.draw.rect(self.screen, red, (250, 40, 100, 50))
+
+                if 400 + 100 > mouse[0] > 400 and 40 + 50 > mouse[1] > 40 and click[0] ==1:
+
+                    picked = 1
+                    self.turn = 2
+                    #print("Clicked Yellow!")
+                    #print("player chosen : ", playerChosen)
+                    pygame.draw.rect(self.screen, bright_yellow, (400, 40, 100, 50))
+                else:
+                    pygame.draw.rect(self.screen, yellow, (400, 40, 100, 50))
+
+                textrect1.center = ((250 + (100 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface1, textrect1)
+                textrect2.center = ((400 + (100 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface2, textrect2)
+
+            pygame.display.update()
             for event in pygame.event.get():
+                #print("event type: ", event.type)
                 if event.type == pygame.QUIT:
                     sys.exit()
 
+                #print("picked now is: ",picked)
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and picked ==1:
 
                     x = event.pos[0]
+                    print("x pos: ",x)
                     place = int(x/SQUARESIZE)
 
 
@@ -186,7 +245,7 @@ class Game:
 
                         self.draw_board()
                         self.screen.fill(pygame.Color("black"), (40, 50, 300, 50))
-                        self.screen.blit(label, (40, 50))
+                        self.screen.blit(label, (5, 50))
                         pygame.display.update()
 
                     if (self.board.full() or self.board.win()):
