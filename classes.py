@@ -30,60 +30,90 @@ class Player:
 
 
     def best_ai_move(self,board, alpha=-100,beta=100 , turn = 2, depth = 10): #recusrive
+        """we check the best ai move by the following steps
 
+            1- base conditions or leaf nodes:
+                a) the board is full--->we call the metric fn and return its value
+                b) we reach the allowed depth--->we call the metric fn and return its value
+                c) we reach a winning or losing state--->we check whose turn this is...if it is the ai's turn(winning state) then we return to the parent node 100(or max metric) and if it's the human's turn(losing state) we return -100(or min metric)
+
+            2- normal node checking:
+                a) we check whose turn it is now
+                b) we call the same fn recusrively for the oponent
+                    if it is the ai's turn which called the fn ...then we will change the alpha value by taking the beta of the children and checking if they are bigger than it's alpha
+                    if it is the human's turn which called the fn ...then we will change the beta value by taking the alpha of the children and checking if they are smaller than it's beta
+                c) if we reach a state where beta < alpha ...then we don't continue and take the current node's alpha or beta depending on whose turn it is
+                d) if none of the returns above are used we return the alpha or beta normally depending on whose turn it is
+
+            here alpha === child_beta
+                 beta === child_alpha"""
         #board here is an object
 
         board_copy = copy.deepcopy(board)
+
+        #check if board is full
         if(board_copy.full()):
             p = function_younan()
             return p, 0
+        #check if max depth is reached then decrementing the depth
         if depth == 0
             p = function_younan()
             return p, 0
         depth -= 1
 
-        # alpha_new = alpha
-        # beta_new = beta
-        a = alpha
-        b = beta
+        # child beta and alpha created...their purpose is to not change the values of the original alpha and beta
+        child_beta = alpha
+        child_alpha = beta
 
-
+        #start the normal node's sequence
         best_play = 0
         for i in range (7):
 
+            #check if it is possible to play in column i
             if(board_copy.possible(i)):
+
+                #try playing in this column
                 board_copy.play(turn, i)
+
+                #check if by playing this move you or your oponent won
                 if board_copy.win():
                     if turn == 2:
-                        return 100
+                        return 100 # this is not alpha nor beta...it is a metric since this is a leaf node...100 because this is a winning state
                     else:
-                        return -100
-                    continue
+                        return -100 # this is not alpha nor beta...it is a metric since this is a leaf node...-100 because this is a losing state
+                    continue # a leaf so we don't have to continue
+
+                #check whose turn it is to decide if we are changing alpha or beta
                 if turn == 2:
-                    a, _ = self.best_ai_move(board_copy, a, b, 1, depth)
-                    if a < alpha:
-                        a = alpha
+                    temp = child_beta
+                    child_beta, _ = self.best_ai_move(board_copy, child_beta, child_alpha, 1, depth)
+                    if child_beta < temp: # this condition means that this child is worse than the prev child
+                        child_beta = temp # return to prev child
                     else :
-                        best_play = i
+                        best_play = i # this child is better so this is the best play and the best child beta
 
                 else :
-                    b, _ = self.best_ai_move(board_copy, a, b, 2, depth)
-                    if b > beta:
-                        b = beta
+                    temp = child_alpha
+                    child_alpha, _ = self.best_ai_move(board_copy, child_beta, child_alpha, 2, depth)
+                    if child_alpha > temp: # this condition means that this child is worse than the prev child
+                        child_alpha = temp # return to prev child
                     else:
-                        best_play = i
+                        best_play = i # this child is better so this is the best play and the best child alpha
 
-                board_copy.undo(i)#function to be made which removes the last coin in this column
-                if a >= b :
+                board_copy.undo(i) # return to prev state before trying another child
+
+
+                # alpha or beta pruning
+                if child_beta >= child_alpha :
                      if turn == 2 :
-                         return b, best_play
+                         return child_beta, best_play
                      else:
-                         return a, best_play
-
+                         return child_alpha, best_play
+        #normal return
         if turn == 2:
-            return b, best_play
+            return child_beta, best_play
         else:
-            return a, best_play
+            return child_alpha, best_play
                 #compute the best position
         #call play_move with this move
 
