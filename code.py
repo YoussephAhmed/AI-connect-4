@@ -102,7 +102,8 @@ class Player:
             return beta, best_play
 
 
-    def simulate_ai_move(self,board,depth = 8):
+    def simulate_ai_move(self,board,depth = 2):
+        print("depth in simulae: ",depth)
         _ , j = self.best_ai_move(board,depth= depth)
         self.play_move(board.board, j)
 
@@ -624,6 +625,7 @@ class Game:
         flagLevel = 0
         modeSelected = 0
         flagMode = 0
+        chosenDepth = 0
         red = (200, 0, 0)
         yellow = (200, 200, 0)
         bright_red = (255, 0, 0)
@@ -651,23 +653,25 @@ class Game:
             click = pygame.mouse.get_pressed()
             pygame.display.update()
 
+            #
+            # if gameLevel == 1 :
+            #     gameLevel =1
+            #     flagLevel = 1
+            # elif gameLevel ==2:
+            #     gameLevel =2
+            #     flagLevel =1
+            # elif gameLevel ==3:
+            #     gameLevel = 3
+            #     flagLevel =1
+            #
+            # if modeSelected ==1:
+            #     modeSelected =1
+            # elif modeSelected ==2:
+            #     modeSelected =2
 
-            if gameLevel == 1 :
-                gameLevel =1
-                flagLevel = 1
-            elif gameLevel ==2:
-                gameLevel =2
-                flagLevel =1
-            elif gameLevel ==3:
-                gameLevel = 3
-                flagLevel =1
-
-            if modeSelected ==1:
-                modeSelected =1
-            elif modeSelected ==2:
-                modeSelected =2
-
-
+            # print("chosen gameLevel: ",gameLevel)
+            # print("chosen mode: ",modeSelected)
+            # print("chosen first player: ",self.board.turn)
             flagLevel = 0
             flagMode = 0
 
@@ -709,6 +713,7 @@ class Game:
                     if click[0] == 1:
                         gameLevel = 1
                         flagLevel = 1
+                        chosenDepth = 2
                         print("chosen level: Easy")
                 else:
                     pygame.draw.rect(self.screen, (255, 255, 255), (240, 40, 80, 50))
@@ -717,6 +722,7 @@ class Game:
                     if click[0] == 1:
                         gameLevel = 2
                         flagLevel = 1
+                        chosenDepth = 3
                         print("chosen level: Medium")
                 else:
                     pygame.draw.rect(self.screen, (255, 255, 255), (330, 40, 80, 50))
@@ -726,6 +732,7 @@ class Game:
                     if click[0] == 1:
                         gameLevel = 3
                         flagLevel = 1
+                        chosenDepth = 5
                         print("chosen level: Hard")
                 else:
                     pygame.draw.rect(self.screen, (255, 255, 255), (420, 40, 80, 50))
@@ -789,7 +796,7 @@ class Game:
 
 
                 if event.type == pygame.MOUSEBUTTONDOWN and picked ==1:
-
+                    #print("ehna hena: w howa dor: ", self.board.turn)
                     x = event.pos[0]
                     place = int(x/SQUARESIZE)
 
@@ -802,7 +809,8 @@ class Game:
 
 
                         else:
-                            self.player_2.simulate_ai_move(self.board, depth = 2)
+                            self.player_2.simulate_ai_move(self.board, depth = chosenDepth)
+                            #print("AI depth: ", chosenDepth)
                         #   self.player_2.play_move(self.board.board, place)
                             self.board.turn = 1
                             label = self.font.render('player ' + str(self.board.turn) + ' turn', 1, (255, 0, 0))
