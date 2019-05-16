@@ -102,7 +102,7 @@ class Player:
             return beta, best_play
 
 
-    def simulate_ai_move(self,board,depth = 5):
+    def simulate_ai_move(self,board,depth = 8):
         _ , j = self.best_ai_move(board,depth= depth)
         self.play_move(board.board, j)
 
@@ -564,7 +564,7 @@ class Game:
     radius = int()
 
     def __init__(self):
-        self.turn = 1
+        self.turn = 0
         self.board = GameBoard()
         self.player_1 = Player(player_id=1)
         self.player_2 = Player(player_id=2)
@@ -577,7 +577,7 @@ class Game:
         self.height = (ROW_NO + 1) * SQUARESIZE
         self.size = (self.width,self.height)
         self.radius = int(SQUARESIZE/2 - 10)
-        self.font = pygame.font.SysFont("monospace", 30)
+        self.font = pygame.font.SysFont("monospace", 20)
         self.screen = pygame.display.set_mode(self.size)
 
 
@@ -609,23 +609,186 @@ class Game:
 
     def simulate_game(self): # the loop of playing
 
+        #Salmaa
+        def text_objects( text, font):
+            textsurface = font.render(text, True, (0, 0, 0))
+            return textsurface, textsurface.get_rect()
+
+
         self.GUI_setup()
         self.draw_board()
+
+        picked = 0
+
+        gameLevel = 0
+        flagLevel = 0
+        modeSelected = 0
+        flagMode = 0
+        red = (200, 0, 0)
+        yellow = (200, 200, 0)
+        bright_red = (255, 0, 0)
+        bright_yellow = (255, 255, 0)
+        black = (0, 0, 0)
+        text = pygame.font.Font("freesansbold.ttf", 20)
+        textsurface1, textrect1 = text_objects("Player 1", text)
+        textsurface2, textrect2 = text_objects("AI", text)
+
+        textsurface3, textrect3 = text_objects("Easy", text)
+        textsurface4, textrect4 = text_objects("Medium", text)
+        textsurface5, textrect5 = text_objects("Hard", text)
+
+        textsurface6, textrect6 = text_objects("Regular", text)
+        textsurface7, textrect7 = text_objects("Verbose", text)
 
         game_end = False
 
         label = self.font.render('player 1 turn', 1, (255, 0, 0))
-        self.screen.blit(label, (40, 50))
+        #self.screen.blit(label, (40, 50))
         pygame.display.update()
 
         while (not game_end):
+            mouse = pygame.mouse.get_pos()
+            click = pygame.mouse.get_pressed()
+            pygame.display.update()
+
+
+            if gameLevel == 1 :
+                gameLevel =1
+                flagLevel = 1
+            elif gameLevel ==2:
+                gameLevel =2
+                flagLevel =1
+            elif gameLevel ==3:
+                gameLevel = 3
+                flagLevel =1
+
+            if modeSelected ==1:
+                modeSelected =1
+            elif modeSelected ==2:
+                modeSelected =2
+
+
+            flagLevel = 0
+            flagMode = 0
+
+            # Hasb el chosen Level hnnady el minimax function b depth mo3yn kol m el depth yzed kol m yb2a as3ab
+            if modeSelected == 0:
+                if 10 + 100 > mouse[0] > 10 and 40 + 50 > mouse[1] > 40 :
+                    pygame.draw.rect(self.screen, (200, 200, 200), (10, 40, 100, 50))
+                    if click[0] == 1 :
+                        modeSelected = 1
+                        flagMode = 1
+                        print("regular mode selected")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (10, 40, 100, 50))
+
+                if 130 + 100 > mouse[0] > 130 and 40 + 50 > mouse[1] > 40 :
+                    pygame.draw.rect(self.screen, (200, 200, 200), (130, 40, 100, 50))
+                    if click[0] == 1:
+                        modeSelected = 2
+                        flagMode = 1
+                        # hena b2a hntala3 el info el 2al 3aleha
+                        print("verbose mode selected")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (130, 40, 100, 50))
+
+                textrect6.center = ((10 + (100 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface6, textrect6)
+                textrect7.center = ((130 + (100 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface7, textrect7)
+
+                label = self.font.render('Pick the mode of the game', 1, (255, 255, 255))
+                self.screen.blit(label, (10, 5))
+            if flagMode == 1:
+                pygame.draw.rect(self.screen, black, (10, 40, 100, 50))
+                pygame.draw.rect(self.screen, black, (130, 40, 100, 50))
+                pygame.draw.rect(self.screen, black, (10, 5, 500, 50))
+            if gameLevel == 0 and modeSelected != 0:
+                if 240 + 80 > mouse[0] > 240 and 40 + 50 > mouse[1] > 40 :
+                    pygame.draw.rect(self.screen, (200, 200, 200), (240, 40, 80, 50))
+                    if click[0] == 1:
+                        gameLevel = 1
+                        flagLevel = 1
+                        print("chosen level: Easy")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (240, 40, 80, 50))
+                if 330 + 80 > mouse[0] > 330 and 40 + 50 > mouse[1] > 40 :
+                    pygame.draw.rect(self.screen, (200, 200, 200), (330, 40, 80, 50))
+                    if click[0] == 1:
+                        gameLevel = 2
+                        flagLevel = 1
+                        print("chosen level: Medium")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (330, 40, 80, 50))
+
+                if 420 + 80 > mouse[0] > 420 and 40 + 50 > mouse[1] > 40 :
+                    pygame.draw.rect(self.screen, (200, 200, 200), (420, 40, 80, 50))
+                    if click[0] == 1:
+                        gameLevel = 3
+                        flagLevel = 1
+                        print("chosen level: Hard")
+                else:
+                    pygame.draw.rect(self.screen, (255, 255, 255), (420, 40, 80, 50))
+
+                textrect3.center = ((240 + (80 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface3, textrect3)
+                textrect4.center = ((330 + (80 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface4, textrect4)
+                textrect5.center = ((420 + (80 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface5, textrect5)
+
+                label = self.font.render('Pick the level of the game', 1, (255, 255, 255))
+                self.screen.blit(label, (10, 5))
+            if flagLevel == 1 and modeSelected != 0:
+                pygame.draw.rect(self.screen, black, (240, 40, 80, 50))
+                pygame.draw.rect(self.screen, black, (330, 40, 80, 50))
+                pygame.draw.rect(self.screen, black, (420, 40, 80, 50))
+                pygame.draw.rect(self.screen, black, (10, 5, 500, 50))
+            if picked == 1 and gameLevel != 0 and modeSelected != 0:
+                picked = 1
+
+                pygame.draw.rect(self.screen, (0, 0, 0), (510, 40, 80, 50))
+                pygame.draw.rect(self.screen, (0, 0, 0), (600, 40, 50, 50))
+                pygame.draw.rect(self.screen, (0, 0, 0), (10, 5, 900, 50))
+            elif picked == 0 and gameLevel != 0 and modeSelected != 0:
+                label = self.font.render('Pick which player will start the game', 1, (255, 255, 255))
+                self.screen.blit(label, (10, 5))
+                if 510 + 80 > mouse[0] > 510 and 40 + 50 > mouse[1] > 40 :
+                    pygame.draw.rect(self.screen, bright_red, (510, 40, 80, 50))
+                    if  click[0] == 1:
+                        picked = 1
+                        self.board.turn = 1
+                    # print("Clicked Red!")
+                    # print("player chosen : ",playerChosen)
+
+                else:
+                    pygame.draw.rect(self.screen, red, (510, 40, 80, 50))
+
+                if 600 + 50 > mouse[0] > 600 and 40 + 50 > mouse[1] > 40 :
+                    pygame.draw.rect(self.screen, bright_yellow, (600, 40, 50, 50))
+                    if  click[0] == 1:
+                        picked = 1
+                        self.board.turn = 2
+                        # print("Clicked Yellow!")
+                    # print("player chosen : ", playerChosen)
+
+                else:
+                    pygame.draw.rect(self.screen, yellow, (600, 40, 50, 50))
+
+                textrect1.center = ((510 + (80 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface1, textrect1)
+                textrect2.center = ((600 + (50 / 2)), (40 + (50 / 2)))
+                self.screen.blit(textsurface2, textrect2)
+
+            pygame.display.update()
+
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
 
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and picked ==1:
 
                     x = event.pos[0]
                     place = int(x/SQUARESIZE)
@@ -635,7 +798,7 @@ class Game:
                         if(self.board.turn == 1):
                             self.player_1.play_move(self.board.board,place)
                             self.board.turn = 2
-                            label = self.font.render('player ' + str(self.turn) + ' turn', 1, (255, 255, 0))
+                            label = self.font.render('player ' + str(self.board.turn) + ' turn', 1, (255, 255, 0))
 
 
                         else:
