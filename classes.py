@@ -37,7 +37,7 @@ class Player:
 
 
     # returns ( score , best_play )
-    def best_ai_move(self,board, alpha=- math.inf,beta=math.inf , turn = 2, depth = 5 ,current_position = 0): #recusrive
+    def best_ai_move(self,board, alpha=- math.inf,beta=math.inf , turn = 2, depth = 1 ,current_position = 0): #recusrive
         #board here is an object
         board_copy = copy.deepcopy(board)
 
@@ -53,7 +53,7 @@ class Player:
 
         if (depth == 0):
             #score = tempEval()
-            score = board_copy.evaluate_state( current_position)
+            score = board_copy.evaluate_state(current_position)
             return score, None
 
         # now the algorithm part
@@ -115,7 +115,7 @@ class GameBoard:
     # 2 for ai
     lead = (int)
 
-    def __init__(self,lead):
+    def __init__(self,lead = 1):
         self.board = np.zeros((6,7)) # the connect 4 board is 6*7
         self.lead = lead
         self.turn = lead
@@ -189,8 +189,8 @@ class GameBoard:
 
     def undo(self, j):
         for i in range(6):
-            if self.board[5-i, j] != 0:
-                self.board[5-i, j] = 0
+            if self.board[i, j] != 0:
+                self.board[i, j] = 0
                 if (self.turn == 1):
                     self.turn = 0
 
@@ -198,8 +198,10 @@ class GameBoard:
                     self.turn = 1
                 return
 
+
                 ######################__________board_evaluation_function_with_some_helping_functions__________###########################################
                 # helping functions
+
     def possible_win_chances_in_rows(self, opponent):
         if opponent:
             if self.turn == 1:
@@ -822,7 +824,6 @@ class GameBoard:
         return score
 
 
-
 ############################################################################################################################
 
 
@@ -835,7 +836,7 @@ class Game:
 
     def __init__(self):
         self.turn = 1
-        self.board = GameBoard(1)
+        self.board = GameBoard()
         self.player_1 = Player(player_id=1)
         self.player_2 = Player(player_id=2)
 
@@ -902,17 +903,17 @@ class Game:
 
                     if self.board.possible(place):
 
-                        if(self.turn == 1):
+                        if(self.board.turn == 1):
                             self.player_1.play_move(self.board.board,place)
-                            self.turn = 2
+                            self.board.turn = 2
                             label = self.font.render('player ' + str(self.turn) + ' turn', 1, (255, 255, 0))
 
 
                         else:
-                            self.player_2.simulate_ai_move(self.board, depth = 4)
+                            self.player_2.simulate_ai_move(self.board, depth = 3)
                         #   self.player_2.play_move(self.board.board, place)
-                            self.turn = 1
-                            label = self.font.render('player ' + str(self.turn) + ' turn', 1, (255, 0, 0))
+                            self.board.turn = 1
+                            label = self.font.render('player ' + str(self.board.turn) + ' turn', 1, (255, 0, 0))
 
 
                         self.draw_board()
@@ -924,13 +925,13 @@ class Game:
                         game_end = True
                         if (self.board.win()):
 
-                            if(self.turn == 2): # Player 1 Wins
+                            if(self.board.turn == 2): # Player 1 Wins
 
                                 label = self.font.render('***** player 1 wins *****', 1,
                                                          (255, 0, 0))
                                 self.screen.blit(label, (40, 10))
 
-                            elif(self.turn == 1): # Player 2 Wins
+                            elif(self.board.turn == 1): # Player 2 Wins
 
                                 label = self.font.render('***** player 2 wins *****', 1,
                                                          (255,255, 0))
@@ -945,8 +946,7 @@ class Game:
 
                         #wait 7 seconds before exist
                         pygame.display.update()
-                        pygame.time.wait(7000)
-
+                        pygame.time.wait(3000)
 hi = Game()
 hi.simulate_game()
 
